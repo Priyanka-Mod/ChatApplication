@@ -4,8 +4,22 @@ import { SafeAreaView, StatusBar } from "react-native";
 import HomeScreen from "../screens/app/HomeScreen";
 import ChatScreen from "../screens/app/ChatScreen";
 import UserProfile from "../screens/app/UserProfileScreen";
+type userDataType = {
+    _id: string,
+    name: string,
+    email: string,
+    avatar: string
+}
+type AppStack = {
+    Home: undefined,
+    Chat: {
+        currentUser?: userDataType
+        chatWith?: userDataType
+    },
+    UserProfile: { currentUser: userDataType }
+}
 
-const Stack = createNativeStackNavigator()
+const Stack = createNativeStackNavigator<AppStack>()
 const AppNavigation = () => {
     return (
         <Fragment>

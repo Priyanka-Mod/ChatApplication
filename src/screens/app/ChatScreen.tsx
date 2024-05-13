@@ -5,7 +5,7 @@ import { useNavigation, useRoute } from "@react-navigation/native"
 import { signOut } from "firebase/auth"
 import { auth, db } from "../../services/firebaseConfig"
 import { addDoc, collection, doc, onSnapshot, orderBy, query } from "firebase/firestore"
-import { Bubble, GiftedChat, InputToolbar, User } from "react-native-gifted-chat"
+import { Bubble, GiftedChat, InputToolbar, Send, User } from "react-native-gifted-chat"
 import { Colors } from "../../utils"
 import firestore from '@react-native-firebase/firestore';
 
@@ -39,7 +39,7 @@ const ChatScreen = ({ route }: route) => {
     console.log("currentUser: ", currentUser, "Chat with : ", chatWith);
 
     const renderBubble = (props: object) => {
-        console.log("props --------- ", props);
+        // console.log("props --------- ", props);
 
         return (
             <Bubble
@@ -86,19 +86,19 @@ const ChatScreen = ({ route }: route) => {
                     flex: 1,
                     alignItems: 'center',
                 }}
-                accessoryStyle={{
-                    justifyContent: 'center',
-                    alignItems: 'center',
-                    paddingHorizontal: 10
-                }}
-                renderAccessory={() => (
-                    <TouchableOpacity style={{
-                        marginLeft: 5,
-                        marginBottom: Platform.OS === 'ios' ? 5 : 0
-                    }} onPress={() => console.log('Attach')}>
-                        <Image style={{ width: Platform.OS === 'ios' ? 32 : 30, height: Platform.OS === 'ios' ? 32 : 30 }} source={require('../../assets/img/add.png')} />
-                    </TouchableOpacity>
-                )}
+            // accessoryStyle={{
+            //     justifyContent: 'center',
+            //     alignItems: 'center',
+            //     paddingHorizontal: 10
+            // }}
+            // renderAccessory={() => (
+            //     <TouchableOpacity style={{
+            //         marginLeft: 5,
+            //         marginBottom: Platform.OS === 'ios' ? 5 : 0
+            //     }} onPress={() => console.log('Attach')}>
+            //         <Image style={{ width: Platform.OS === 'ios' ? 32 : 30, height: Platform.OS === 'ios' ? 32 : 30 }} source={require('../../assets/img/add.png')} />
+            //     </TouchableOpacity>
+            // )}
             />
         );
     };
@@ -125,9 +125,6 @@ const ChatScreen = ({ route }: route) => {
         });
         return unsubscribe;
     }, []);
-    useLayoutEffect(() => {
-        console.log("typing")
-    }, [isTyping])
 
     const onSend = useCallback((messages: {
         _id: string | number; createdAt: Date | number; text: string; user: User;
@@ -148,7 +145,7 @@ const ChatScreen = ({ route }: route) => {
 
     return (
         <SafeAreaView style={{ flex: 1, backgroundColor: 'white' }}>
-            <View style={{ flexDirection: 'row', alignItems: 'center', paddingVertical: 10 }}>
+            <View style={{ flexDirection: 'row', alignItems: 'center', paddingVertical: 10, backgroundColor: 'white' }}>
                 <TouchableOpacity style={{ alignItems: 'center', padding: 5, }} onPress={() => navigation.navigate('Home')}>
                     <Image style={{ height: 30, width: 30, }} source={require('../../assets/img/backArrow.png')} />
                 </TouchableOpacity>
@@ -158,13 +155,14 @@ const ChatScreen = ({ route }: route) => {
             </View>
             <GiftedChat
                 // isTyping={isTyping}
+                alwaysShowSend={isTyping !== '' ? true : false}
                 messages={messages}
                 // showUserAvatar={true}
                 onSend={messages =>
                     onSend(messages)
                 }
                 messagesContainerStyle={{
-                    backgroundColor: '#fff'
+                    backgroundColor: 'white'
                 }}
                 user={{
                     _id: currentUser!._id,
@@ -174,10 +172,33 @@ const ChatScreen = ({ route }: route) => {
                 renderInputToolbar={props => customtInputToolbar(props)}
                 onInputTextChanged={(msg) => {
                     console.log("msg----------", msg);
-                    if (msg) {
+                    const testReg = new RegExp("^\s*$")
+                    if (testReg.test(msg)) {
                         console.log("changingg", msg)
+
                         setIsTyping(msg)
                     }
+                    setIsTyping('')
+
+                }}
+                // renderMessageImage={props => console.log("imageProps: ", props)
+                // }
+                renderSend={props => {
+                    return (
+                        <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+                            <TouchableOpacity style={{
+                                marginRight: 10,
+                                marginBottom: Platform.OS === 'ios' ? 5 : 0
+                            }} onPress={() => console.log('Attach')}>
+                                <Image style={{ width: Platform.OS === 'ios' ? 32 : 30, height: Platform.OS === 'ios' ? 32 : 30 }} source={require('../../assets/img/add.png')} />
+                            </TouchableOpacity>
+                            <Send {...props} containerStyle={{ justifyContent: 'center', marginRight: 10 }}>
+                                <Image style={{ marginBottom: Platform.OS === 'ios' ? 5 : 0, width: Platform.OS === 'ios' ? 32 : 30, height: Platform.OS === 'ios' ? 32 : 30, }} source={{
+                                    uri: "https://cdn-icons-png.freepik.com/512/15184/15184939.png"
+                                }} />
+                            </Send>
+                        </View>
+                    )
                 }}
             />
         </SafeAreaView>
